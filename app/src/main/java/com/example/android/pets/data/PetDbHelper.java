@@ -10,18 +10,12 @@ import com.example.android.pets.data.PetContract.PetEntry;
  */
 
 public class PetDbHelper extends SQLiteOpenHelper{
-    private static final String SQL_CREATE_ENTRIES =
-            "CREATE TABLE " + PetEntry.TABLE_NAME + " (" +
-                    PetEntry._ID + " INTEGER PRIMARY KEY," +
-                    PetEntry.COLUMN_PET_NAME + " TEXT," +
-                    PetEntry.COLUMN_PET_BREED + " TEXT"+
-                    PetEntry.COLUMN_PET_GENDER + " INTEGER"+
-                    PetEntry.COLUMN_PET_WEIGHT +" INTEGER);";
+
 
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + PetEntry.TABLE_NAME;
     public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "pets.db";
+    public static final String DATABASE_NAME = "shelter.db";
 
     public PetDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -29,6 +23,13 @@ public class PetDbHelper extends SQLiteOpenHelper{
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+         String SQL_CREATE_ENTRIES =
+                "CREATE TABLE " + PetEntry.TABLE_NAME + " (" +
+                        PetEntry._ID + " INTEGER PRIMARY KEY," +
+                        PetEntry.COLUMN_PET_NAME + " TEXT," +
+                        PetEntry.COLUMN_PET_BREED + " TEXT"+
+                        PetEntry.COLUMN_PET_GENDER + " INTEGER"+
+                        PetEntry.COLUMN_PET_WEIGHT +" INTEGER);";
         db.execSQL(SQL_CREATE_ENTRIES);
 
     }
