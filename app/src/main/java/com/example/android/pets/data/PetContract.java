@@ -10,6 +10,7 @@ public final class PetContract {
     private PetContract(){}
     /* Inner class that defines the table contents */
     public static class PetEntry implements BaseColumns{
+
         public static String _ID=BaseColumns._ID;
         public static final String TABLE_NAME = "pets";
         public static final String COLUMN_PET_NAME = "name";
