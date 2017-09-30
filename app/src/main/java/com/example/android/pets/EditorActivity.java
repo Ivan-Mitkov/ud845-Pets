@@ -15,10 +15,13 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +29,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
+
 import com.example.android.pets.data.PetContract.PetEntry;
+import com.example.android.pets.data.PetDbHelper;
+
 /**
  * Allows user to create a new pet or edit an existing one.
  */
@@ -49,7 +56,8 @@ public class EditorActivity extends AppCompatActivity {
      * 0 for unknown gender, 1 for male, 2 for female.
      */
     private int mGender = PetEntry.GENDER_UNKNOWN;
-
+    private PetDbHelper mDbHelper;
+    private static long row=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,7 +110,37 @@ public class EditorActivity extends AppCompatActivity {
             }
         });
     }
+    private long insertPet(){
+        String nameString= mNameEditText.getText().toString().trim();
+        String breedString = mBreedEditText.getText().toString().trim();
+        String weightString = mWeightEditText.getText().toString().trim();
+        int weightInt=0;
+        if(!weightString.equals("")){
+           weightInt=Integer.parseInt(weightString);
+        }
+        int genderInt = mGender;
 
+        PetDbHelper mDbHelper = new PetDbHelper(this);
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        if(!nameString.equals("")){
+            values.put(PetEntry.COLUMN_PET_NAME, nameString);
+        }
+        else{
+            Toast.makeText(this,"Name is mandatory field!",Toast.LENGTH_SHORT).show();
+        }
+
+        values.put(PetEntry.COLUMN_PET_BREED, breedString);
+        values.put(PetEntry.COLUMN_PET_GENDER,genderInt);
+        values.put(PetEntry.COLUMN_PET_WEIGHT,weightInt);
+
+        // Insert the new row, returning the primary key value of the new row
+        long newRowId = db.insert(PetEntry.TABLE_NAME, null, values);
+        Log.v("Catalog Activity", "new row id "+newRowId);
+        return newRowId;
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu options from the res/menu/menu_editor.xml file.
@@ -117,7 +155,17 @@ public class EditorActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                // Do nothing for now
+
+                long tempRow =insertPet();
+                if(tempRow>row){
+                    Toast.makeText(this, "Pet inserted in database on row "+tempRow, Toast.LENGTH_SHORT).show();
+                    row=tempRow;
+                    finish();
+                }
+               else{
+                    Toast.makeText(this,"Error inserting pet", Toast.LENGTH_SHORT).show();
+                }
+
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
