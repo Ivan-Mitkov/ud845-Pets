@@ -17,6 +17,7 @@ package com.example.android.pets;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +32,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.android.pets.data.PetContract;
 import com.example.android.pets.data.PetContract.PetEntry;
 import com.example.android.pets.data.PetDbHelper;
 
@@ -57,7 +59,7 @@ public class EditorActivity extends AppCompatActivity {
      */
     private int mGender = PetEntry.GENDER_UNKNOWN;
     private PetDbHelper mDbHelper;
-    private static long row=0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,7 +112,7 @@ public class EditorActivity extends AppCompatActivity {
             }
         });
     }
-    private long insertPet(){
+    private Uri insertPet(){
         String nameString= mNameEditText.getText().toString().trim();
         String breedString = mBreedEditText.getText().toString().trim();
         String weightString = mWeightEditText.getText().toString().trim();
@@ -119,10 +121,6 @@ public class EditorActivity extends AppCompatActivity {
            weightInt=Integer.parseInt(weightString);
         }
         int genderInt = mGender;
-
-        PetDbHelper mDbHelper = new PetDbHelper(this);
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         if(!nameString.equals("")){
@@ -136,10 +134,8 @@ public class EditorActivity extends AppCompatActivity {
         values.put(PetEntry.COLUMN_PET_GENDER,genderInt);
         values.put(PetEntry.COLUMN_PET_WEIGHT,weightInt);
 
-        // Insert the new row, returning the primary key value of the new row
-        long newRowId = db.insert(PetEntry.TABLE_NAME, null, values);
-        Log.v("Catalog Activity", "new row id "+newRowId);
-        return newRowId;
+        Uri newUri=getContentResolver().insert(PetContract.CONTENT_URI,values);
+        return newUri;
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -156,10 +152,10 @@ public class EditorActivity extends AppCompatActivity {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
 
-                long tempRow =insertPet();
-                if(tempRow>row){
+                Uri tempRow =insertPet();
+                if(tempRow!=null){
                     Toast.makeText(this, "Pet inserted in database on row "+tempRow, Toast.LENGTH_SHORT).show();
-                    row=tempRow;
+
                     finish();
                 }
                else{

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -13,8 +14,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.android.pets.data.PetContract;
 import com.example.android.pets.data.PetContract.PetEntry;
 import com.example.android.pets.data.PetDbHelper;
+import com.example.android.pets.data.PetProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,10 +63,6 @@ public class CatalogActivity extends AppCompatActivity {
 
     private void displayDatabaseInfo() {
 
-
-        // Create and/or open a database to read from it
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
         String[] projection =
                 {   PetEntry._ID,
                         PetEntry.COLUMN_PET_NAME,
@@ -71,13 +70,8 @@ public class CatalogActivity extends AppCompatActivity {
                         PetEntry.COLUMN_PET_GENDER,
                         PetEntry.COLUMN_PET_WEIGHT,};
 
-        //String selection =null;// PetEntry.COLUMN_PET_GENDER + "=?";
-        //String[] selectionArgs = null;//new String[]{String.valueOf(PetEntry.GENDER_FEMALE)};
 
-        Cursor cursor = db.query(PetEntry.TABLE_NAME, projection,
-                null, null,
-                null, null, null);
-
+        Cursor cursor=getContentResolver().query(PetContract.CONTENT_URI,projection,null,null,null);
         TextView displayView = (TextView) findViewById(R.id.text_view_pet);
 
         try {
@@ -120,8 +114,6 @@ public class CatalogActivity extends AppCompatActivity {
     }
 
     private void insertPet() {
-        // Gets the data repository in write mode
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
@@ -130,9 +122,8 @@ public class CatalogActivity extends AppCompatActivity {
         values.put(PetEntry.COLUMN_PET_GENDER, PetEntry.GENDER_MALE);
         values.put(PetEntry.COLUMN_PET_WEIGHT, 7);
 
-        // Insert the new row, returning the primary key value of the new row
-        long newRowId = db.insert(PetEntry.TABLE_NAME, null, values);
-        Log.v("Catalog Activity", "new row id " + newRowId);
+        Uri newUri=getContentResolver().insert(PetContract.CONTENT_URI,values);
+
     }
 
     @Override
