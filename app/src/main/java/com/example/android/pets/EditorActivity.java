@@ -154,7 +154,7 @@ public class EditorActivity extends AppCompatActivity {
 
                 Uri tempRow =insertPet();
                 if(tempRow!=null){
-                    Toast.makeText(this, "Pet inserted in database on row "+tempRow, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Pet inserted ", Toast.LENGTH_SHORT).show();
 
                     finish();
                 }

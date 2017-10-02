@@ -126,7 +126,7 @@ public class PetProvider extends ContentProvider {
     }
 
     private Uri insertPet(Uri uri, ContentValues values) {
-        Uri mNewUri;
+
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
 
         long id = database.insert(PetContract.PetEntry.TABLE_NAME, null, values);
