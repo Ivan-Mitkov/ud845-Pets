@@ -1,5 +1,6 @@
 package com.example.android.pets;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -10,14 +11,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Loader;
+import android.widget.TextView;
 
 import com.example.android.pets.data.PetContract;
 import com.example.android.pets.data.PetContract.PetEntry;
 import com.example.android.pets.data.PetDbHelper;
+
+import static android.content.ContentUris.withAppendedId;
 
 /**
  * Displays list of pets that were entered and stored in the app.
@@ -66,6 +71,22 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
          * Initializes the CursorLoader. The PET_LOADER value is eventually passed
          * to onCreateLoader().
          */
+         petListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+             @Override
+             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                 //create new intent to go to Editor activity
+                 Intent intent = new Intent(CatalogActivity.this,EditorActivity.class);
+                 //form the content uri
+                 Uri currentPetUri = ContentUris.withAppendedId (PetContract.CONTENT_URI,id);
+                 // set the uri on the data of the intent
+                 //setData() is used to point to the location of a data object (like a file for example)
+                 intent.setData(currentPetUri);
+
+                 // Send the intent to launch a new activity
+                 startActivity(intent);
+
+             }
+         });
         getLoaderManager().initLoader(PET_LOADER, null, this);
     }
 
