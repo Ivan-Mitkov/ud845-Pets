@@ -102,6 +102,10 @@ public class PetProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
+        //Set notification Uri to the cursor
+        //so we know what content Uri the cursot was created for
+        //if the data at this uri changes, then we know we need to change the cursor
+        cursor.setNotificationUri(getContext().getContentResolver(),uri);
         return cursor;
     }
     /**
@@ -150,6 +154,8 @@ public class PetProvider extends ContentProvider {
             Log.e(LOG_TAG, "Failed to insert row for " + uri);
             return null;
         }
+        //notify all listeners that the data has changed for the pet content uri
+        getContext().getContentResolver().notifyChange(uri,null);
         // the values to insert return the new URI with the ID appended to the end of it
         return ContentUris.withAppendedId(uri, id);
     }
@@ -163,11 +169,15 @@ public class PetProvider extends ContentProvider {
         switch (match) {
             case PETS:
                 // Delete all rows that match the selection and selection args
+                //notify all listeners that the data has changed for the pet content uri
+                getContext().getContentResolver().notifyChange(uri,null);
                 return database.delete(PetContract.PetEntry.TABLE_NAME, selection, selectionArgs);
             case PET_ID:
                 // Delete a single row given by the ID in the URI
                 selection = PetContract.PetEntry._ID + "=?";
                 selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
+                //notify all listeners that the data has changed for the pet content uri
+                getContext().getContentResolver().notifyChange(uri,null);
                 return database.delete(PetContract.PetEntry.TABLE_NAME, selection, selectionArgs);
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
@@ -186,6 +196,7 @@ public class PetProvider extends ContentProvider {
                 // arguments will be a String array containing the actual ID.
                 selection = PetContract.PetEntry._ID + "=?";
                 selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
+
                 return updatePet(uri, contentValues, selection, selectionArgs);
             default:
                 throw new IllegalArgumentException("Update is not supported for " + uri);
@@ -195,6 +206,8 @@ public class PetProvider extends ContentProvider {
 
         // Otherwise, get writeable database to update the data
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        //notify all listeners that the data has changed for the pet content uri
+        getContext().getContentResolver().notifyChange(uri,null);
         return database.update(PetContract.PetEntry.TABLE_NAME, values, selection, selectionArgs);
 
     }
