@@ -54,40 +54,34 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
 
     // These are the Pet rows that we will retrieve
+    /** Identifier for the pet data loader */
+    private static final int EXISTING_PET_LOADER = 0;
     /**
      * EditText field to enter the pet's name
      */
     private EditText mNameEditText;
-
     /**
      * EditText field to enter the pet's breed
      */
     private EditText mBreedEditText;
-
     /**
      * EditText field to enter the pet's weight
      */
     private EditText mWeightEditText;
-
     /**
      * EditText field to enter the pet's gender
      */
     private Spinner mGenderSpinner;
-
     /**
      * Gender of the pet. The possible values are:
      * 0 for unknown gender, 1 for male, 2 for female.
      */
     private int mGender = PetEntry.GENDER_UNKNOWN;
-
+    // Identifies a particular Loader being used in this component
     /**
      * Content URI for the existing pet (null if it's a new pet)
      */
     private Uri mCurrentPetUri;
-    // Identifies a particular Loader being used in this component
-    /** Identifier for the pet data loader */
-    private static final int EXISTING_PET_LOADER = 0;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,11 +90,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         //Examine the intent that was used to start this activity
         Intent intent = getIntent();
-        Uri currentPetUri = intent.getData();
+        mCurrentPetUri = intent.getData();
         //if the intent does not contain pet uri
-        if (currentPetUri == null) {
+        if (mCurrentPetUri == null) {
             setTitle(getString(R.string.editor_activity_title_new_pet));
-            invalidateOptionsMenu();
+
         } else {
             setTitle(getString(R.string.editor_activity_title_edit_pet));
             // Initialize a loader to read the pet data from the database
@@ -113,7 +107,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mBreedEditText = (EditText) findViewById(R.id.edit_pet_breed);
         mWeightEditText = (EditText) findViewById(R.id.edit_pet_weight);
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
-        mCurrentPetUri = currentPetUri;
+
         setupSpinner();
 
     }
@@ -157,7 +151,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         });
     }
 
-    private Uri insertPet() {
+    private void insertPet() {
         String nameString = mNameEditText.getText().toString().trim();
         String breedString = mBreedEditText.getText().toString().trim();
         String weightString = mWeightEditText.getText().toString().trim();
@@ -179,7 +173,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         values.put(PetEntry.COLUMN_PET_WEIGHT, weightInt);
 
         Uri newUri = getContentResolver().insert(PetContract.CONTENT_URI, values);
-        return newUri;
+
     }
 
     @Override
@@ -197,14 +191,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
 
-                Uri tempRow = insertPet();
-                if (tempRow != null) {
-                    Toast.makeText(this, "Pet inserted ", Toast.LENGTH_SHORT).show();
-
-                    finish();
-                } else {
-                    Toast.makeText(this, "Error inserting pet", Toast.LENGTH_SHORT).show();
-                }
+                //in buggy version take uri from insert pet, but because uri for editing is null app crashed
+               insertPet();
+                finish();
+                Toast.makeText(this, "Error inserting pet", Toast.LENGTH_SHORT).show();
 
                 return true;
             // Respond to a click on the "Delete" menu option
@@ -249,9 +239,13 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+
+        // Bail early if the cursor is null or there is less than 1 row in the cursor
+        if (cursor == null || cursor.getCount() < 1) {
+            return;
+        }
         // Proceed with moving to the first row of the cursor and reading data from it
         // (This should be the only row in the cursor)
-
         if (cursor.moveToFirst()) {
             // Find the columns of pet attributes that we're interested in
             int nameColumnIndex = cursor.getColumnIndex(PetEntry.COLUMN_PET_NAME);

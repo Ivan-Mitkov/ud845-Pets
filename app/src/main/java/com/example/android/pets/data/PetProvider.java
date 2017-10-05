@@ -103,7 +103,7 @@ public class PetProvider extends ContentProvider {
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
         //Set notification Uri to the cursor
-        //so we know what content Uri the cursot was created for
+        //so we know what content Uri the cursor was created for
         //if the data at this uri changes, then we know we need to change the cursor
         cursor.setNotificationUri(getContext().getContentResolver(),uri);
         return cursor;
@@ -140,7 +140,7 @@ public class PetProvider extends ContentProvider {
     private Uri insertPet(Uri uri, ContentValues values) {
 
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
-        //String name = values.getAsString(PetContract.PetEntry.COLUMN_PET_NAME);
+//        String name = values.getAsString(PetContract.PetEntry.COLUMN_PET_NAME);
 //        if(name.equals(null)){
 //            throw new IllegalArgumentException("Pet requires a name");
 //        }
@@ -162,7 +162,7 @@ public class PetProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        // Get writeable database
+        // Get writable database
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
         // Track the number of rows that were deleted
         int rowsDeleted;
@@ -212,7 +212,7 @@ public class PetProvider extends ContentProvider {
     }
     private int updatePet(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 
-        // Otherwise, get writeable database to update the data
+        // Otherwise, get writable database to update the data
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
         //notify all listeners that the data has changed for the pet content uri
         // Perform the update on the database and get the number of rows affected
