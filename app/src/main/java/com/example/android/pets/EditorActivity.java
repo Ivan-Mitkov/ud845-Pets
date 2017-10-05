@@ -158,11 +158,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
 
-        if (!nameString.equals("")) {
-            values.put(PetEntry.COLUMN_PET_NAME, nameString);
-        } else {
+        if(nameString.isEmpty()){
             Toast.makeText(this, "Name is mandatory field!", Toast.LENGTH_SHORT).show();
+            return;
         }
+        values.put(PetEntry.COLUMN_PET_NAME, nameString);
         values.put(PetEntry.COLUMN_PET_BREED, breedString);
         values.put(PetEntry.COLUMN_PET_GENDER, genderInt);
         values.put(PetEntry.COLUMN_PET_WEIGHT, weightInt);
