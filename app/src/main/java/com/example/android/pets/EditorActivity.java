@@ -15,13 +15,11 @@
  */
 package com.example.android.pets;
 
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -31,20 +29,16 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 
-import android.content.CursorLoader;
 import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract;
 import com.example.android.pets.data.PetContract.PetEntry;
-import com.example.android.pets.data.PetDbHelper;
 
 /**
  * Allows user to create a new pet or edit an existing one.
@@ -151,7 +145,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         });
     }
 
-    private void insertPet() {
+    private void savePet() {
         String nameString = mNameEditText.getText().toString().trim();
         String breedString = mBreedEditText.getText().toString().trim();
         String weightString = mWeightEditText.getText().toString().trim();
@@ -160,19 +154,39 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             weightInt = Integer.parseInt(weightString);
         }
         int genderInt = mGender;
+
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
+
         if (!nameString.equals("")) {
             values.put(PetEntry.COLUMN_PET_NAME, nameString);
         } else {
             Toast.makeText(this, "Name is mandatory field!", Toast.LENGTH_SHORT).show();
         }
-
         values.put(PetEntry.COLUMN_PET_BREED, breedString);
         values.put(PetEntry.COLUMN_PET_GENDER, genderInt);
         values.put(PetEntry.COLUMN_PET_WEIGHT, weightInt);
 
-        Uri newUri = getContentResolver().insert(PetContract.CONTENT_URI, values);
+        //existing or new pet
+        if(mCurrentPetUri==null){//new
+            Uri newUri = getContentResolver().insert(PetContract.CONTENT_URI, values);
+            if(newUri==null){
+                Toast.makeText(this,"Failed insertion of the pet", Toast.LENGTH_SHORT).show();
+            }
+            else{
+                Toast.makeText(this,"Insert new pet succesfull",Toast.LENGTH_SHORT).show();
+            }
+        }
+        //existing pet
+        else{
+            int row = getContentResolver().update(mCurrentPetUri,values,null,null);
+            if(row ==0){
+                Toast.makeText(this,"Edit failed",Toast.LENGTH_SHORT).show();
+            }
+            else{
+                Toast.makeText(this,"Edit succes", Toast.LENGTH_SHORT).show();
+            }
+        }
 
     }
 
@@ -192,10 +206,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             case R.id.action_save:
 
                 //in buggy version take uri from insert pet, but because uri for editing is null app crashed
-               insertPet();
+                savePet();
                 finish();
-                Toast.makeText(this, "Error inserting pet", Toast.LENGTH_SHORT).show();
-
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
