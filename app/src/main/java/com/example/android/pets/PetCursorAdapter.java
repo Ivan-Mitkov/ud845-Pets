@@ -20,7 +20,6 @@ public class PetCursorAdapter extends CursorAdapter {
         super(context, c, 0 /* flags */);
     }
 
-
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         return LayoutInflater.from(context).inflate(R.layout.list_item, parent, false);
@@ -39,7 +38,11 @@ public class PetCursorAdapter extends CursorAdapter {
 
         String petName = cursor.getString(nameColumnIndex);
         String petBreed = cursor.getString(breedColumnIndex);
-
+        // If the pet breed is empty string or null, then use some default text
+        // that says "Unknown breed", so the TextView isn't blank.
+        if(petBreed.isEmpty()){
+            petBreed= context.getString(R.string.unknown_breed);
+        }
         // Populate fields with extracted properties
         tvName.setText(petName);
         tvSummary.setText(petBreed);
